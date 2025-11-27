@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Req, Res, UseGuards } from "@nestjs/common";
+
 import { TodosService } from "./todos.service";
 import { JwtAuthGuard } from "src/auth/jwt.guard";
 import { CreateTodosDto, UpdateTodosDto } from "./dto/todos.dto";
@@ -8,7 +9,7 @@ export class TodosController {
     constructor(private readonly todosService: TodosService) {}
 
     @UseGuards(JwtAuthGuard)
-    @Get("")
+    @Get()
     getTodosByUser(@Req() request) {
         return this.todosService.getTodosByUser(request);
     }
@@ -26,7 +27,7 @@ export class TodosController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Delete("delete/:id")
+    @Delete(":id")
     deleteTodo(@Param() params: { id: string }, @Req() request, @Res({ passthrough: true }) response) {
         return this.todosService.deleteTodo(params.id, request);
     }

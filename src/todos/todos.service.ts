@@ -1,12 +1,19 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { Request } from "express";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+
+import { TodoStatus } from "@prisma/client";
 import { DatabaseService } from "src/database/database.service";
 import { CreateTodosDto, UpdateTodosDto } from "./dto/todos.dto";
-import { TodoStatus } from "@prisma/client";
 
 @Injectable()
 export class TodosService {
     constructor(private databaseService: DatabaseService) {}
+
+    private assertOwner(todoUserId: string, currentUserId: string) {
+        if (todoUserId !== currentUserId) {
+            throw new ForbiddenException("You cannot access another user's todo.");
+        }
+    }
 
     async getTodosByUser(request: Request) {
         const { id: userId } = request.user as { id: string };
@@ -19,18 +26,12 @@ export class TodosService {
 
         const { name } = dto;
 
-        try {
-            const createdTodo = await this.databaseService.todo.create({
-                data: {
-                    name,
-                    user: { connect: { id: userId } },
-                },
-            });
-
-            return createdTodo;
-        } catch (error) {
-            throw new BadRequestException("Error while creating todo", error.message);
-        }
+        return await this.databaseService.todo.create({
+            data: {
+                name,
+                user: { connect: { id: userId } },
+            },
+        });
     }
 
     async updateTodo(id: string, dto: UpdateTodosDto, request: Request) {
@@ -38,7 +39,7 @@ export class TodosService {
         if (!todo) throw new NotFoundException("Todo with this id not found");
 
         const decodedUser = request.user as { id: string; login: string };
-        if (decodedUser.id !== todo.userId) throw new ForbiddenException("You cannot update another user's todo.");
+        this.assertOwner(todo.userId, decodedUser.id);
 
         const { name, status } = dto;
 
@@ -66,7 +67,7 @@ export class TodosService {
         if (!todo) throw new NotFoundException("Todo with this id not found");
 
         const decodedUser = request.user as { id: string; login: string };
-        if (decodedUser.id !== todo.userId) throw new ForbiddenException("You cannot delete another user's todo.");
+        this.assertOwner(todo.userId, decodedUser.id);
 
         await this.databaseService.todo.delete({ where: { id } });
 

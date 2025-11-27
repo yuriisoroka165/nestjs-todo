@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { BadRequestException, ForbiddenException, forwardRef, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { DatabaseService } from "src/database/database.service";
 import { SignUpDto } from "src/auth/dto/auth.dto";
 import { hashPassword } from "src/utils/password";
 import { UpdateUserDto } from "./dto/users.dto";
+import { JwtUser } from "./types/jwt-user.type";
 
 @Injectable()
 export class UsersService {
@@ -14,7 +15,7 @@ export class UsersService {
         const user = await this.databaseService.user.findUnique({ where: { id } });
         if (!user) throw new NotFoundException("User with this id not found");
 
-        const decodedUser = request.user as { id: string; login: string };
+        const decodedUser = request.user as JwtUser;
         if (user.id !== decodedUser.id) throw new ForbiddenException("You cannot access another user's data.");
 
         const { password, ...userWithoutPassword } = user;
@@ -44,20 +45,16 @@ export class UsersService {
 
         const hashedPassword = await hashPassword(password);
 
-        try {
-            await this.databaseService.user.create({
-                data: {
-                    login,
-                    email,
-                    fullName,
-                    password: hashedPassword,
-                },
-            });
+        await this.databaseService.user.create({
+            data: {
+                login,
+                email,
+                fullName,
+                password: hashedPassword,
+            },
+        });
 
-            return { message: "User created" };
-        } catch (error) {
-            throw new BadRequestException("Error while creating user", error.message);
-        }
+        return { message: "User created" };
     }
 
     // для зміни дозволено email, fullName та password
@@ -65,13 +62,17 @@ export class UsersService {
         const user = await this.databaseService.user.findUnique({ where: { id } });
         if (!user) throw new NotFoundException("User with this id not found");
 
-        const decodedUser = request.user as { id: string; login: string };
+        const decodedUser = request.user as JwtUser;
         if (user.id !== decodedUser.id) throw new ForbiddenException("You cannot update another user's data.");
 
         const { email, fullName, password } = dto;
 
         const updateData: UpdateUserDto = {};
-        if (email) updateData.email = email;
+        if (email && email !== user.email) {
+            const emailCheck = await this.databaseService.user.findUnique({ where: { email } });
+            if (emailCheck) throw new BadRequestException("Email already in use");
+            updateData.email = email;
+        }
         if (fullName) updateData.fullName = fullName;
         if (password) updateData.password = await hashPassword(password);
 
@@ -89,7 +90,7 @@ export class UsersService {
         const user = await this.databaseService.user.findUnique({ where: { id } });
         if (!user) throw new NotFoundException("User with this id not found");
 
-        const decodedUser = request.user as { id: string; login: string; permissions: string };
+        const decodedUser = request.user as JwtUser;
         if (user.id !== decodedUser.id && decodedUser.permissions !== "ADMIN") {
             throw new ForbiddenException("You cannot delete another user's account.");
         }
@@ -102,10 +103,4 @@ export class UsersService {
 
         return { message: "User deleted successfully" };
     }
-
-    // async hashPassword(password: string) {
-    //     // скільки раундів "cолювання" застосувати до пароля
-    //     const saltOrRounds = 10;
-    //     return await bcrypt.hash(password, saltOrRounds);
-    // }
 }

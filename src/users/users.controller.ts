@@ -34,7 +34,7 @@ export class UsersController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Delete("delete/:id")
+    @Delete(":id")
     //@Res({ passthrough: true }) - без passthrough зависає (коли видаляється юзер і виконується  response.clearCookie("token");)
     deleteUser(@Param() params: { id: string }, @Req() request, @Res({ passthrough: true }) response) {
         return this.usersService.deleteUser(params.id, request, response);

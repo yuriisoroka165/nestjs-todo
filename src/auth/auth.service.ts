@@ -1,11 +1,10 @@
-import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
+import { Request, Response } from "express";
 import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 
 import { SignInDto, SignUpDto } from "./dto/auth.dto";
 import { DatabaseService } from "src/database/database.service";
 import { JWT_SECRET } from "src/utils/constants";
-import { Request, Response } from "express";
 import { UsersService } from "src/users/users.service";
 import { comparePasswords } from "src/utils/password";
 
@@ -22,32 +21,6 @@ export class AuthService {
         await this.userService.createUser(dto);
 
         return { message: "Signup was succesfull" };
-        // const { login, email, password, fullName } = dto;
-        // const exitingUserEmail = await this.databaseService.user.findUnique({
-        //     where: { email },
-        // });
-        // const exitingUserLogin = await this.databaseService.user.findUnique({
-        //     where: { login },
-        // });
-
-        // if (exitingUserEmail) {
-        //     throw new BadRequestException("User with this email already exists");
-        // } else if (exitingUserLogin) {
-        //     throw new BadRequestException("User with this login already exists");
-        // }
-
-        // const hashedPassword = await this.hashPassword(password);
-
-        // await this.databaseService.user.create({
-        //     data: {
-        //         login,
-        //         email,
-        //         fullName,
-        //         password: hashedPassword,
-        //     },
-        // });
-
-        // return { message: "Signup was succesfull" };
     }
 
     async signin(dto: SignInDto, request: Request, response: Response) {
@@ -71,10 +44,6 @@ export class AuthService {
         response.clearCookie("token");
         return response.send({ mesage: "Logged out successful!" });
     }
-
-    // async copmarePasswords(args: { password: string; hash: string }) {
-    //     return await bcrypt.compare(args.password, args.hash);
-    // }
 
     async signToken(args: { id: string; login: string; permissions: string }) {
         const payload = args;
