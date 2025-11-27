@@ -14,7 +14,7 @@ export class UsersService {
         const user = await this.databaseService.user.findUnique({ where: { id } });
         if (!user) throw new NotFoundException("User with this id not found");
 
-        const decodedUser = request.user as { id: string; email: string };
+        const decodedUser = request.user as { id: string; login: string };
         if (user.id !== decodedUser.id) throw new ForbiddenException("You cannot access another user's data.");
 
         const { password, ...userWithoutPassword } = user;
@@ -28,7 +28,7 @@ export class UsersService {
 
     async createUser(dto: SignUpDto) {
         const { login, email, password, fullName } = dto;
-        
+
         const exitingUserEmail = await this.databaseService.user.findUnique({
             where: { email },
         });
@@ -44,16 +44,20 @@ export class UsersService {
 
         const hashedPassword = await hashPassword(password);
 
-        await this.databaseService.user.create({
-            data: {
-                login,
-                email,
-                fullName,
-                password: hashedPassword,
-            },
-        });
+        try {
+            await this.databaseService.user.create({
+                data: {
+                    login,
+                    email,
+                    fullName,
+                    password: hashedPassword,
+                },
+            });
 
-        return { message: "User created" };
+            return { message: "User created" };
+        } catch (error) {
+            throw new BadRequestException("Error while creating user", error.message);
+        }
     }
 
     // для зміни дозволено email, fullName та password
@@ -61,7 +65,7 @@ export class UsersService {
         const user = await this.databaseService.user.findUnique({ where: { id } });
         if (!user) throw new NotFoundException("User with this id not found");
 
-        const decodedUser = request.user as { id: string; email: string };
+        const decodedUser = request.user as { id: string; login: string };
         if (user.id !== decodedUser.id) throw new ForbiddenException("You cannot update another user's data.");
 
         const { email, fullName, password } = dto;
@@ -85,7 +89,7 @@ export class UsersService {
         const user = await this.databaseService.user.findUnique({ where: { id } });
         if (!user) throw new NotFoundException("User with this id not found");
 
-        const decodedUser = request.user as { id: string; email: string; permissions: string };
+        const decodedUser = request.user as { id: string; login: string; permissions: string };
         if (user.id !== decodedUser.id && decodedUser.permissions !== "ADMIN") {
             throw new ForbiddenException("You cannot delete another user's account.");
         }
