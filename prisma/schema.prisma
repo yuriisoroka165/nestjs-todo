@@ -13,16 +13,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserPermission {
+  USER
+  ADMIN
+}
+
 model User {
-  id        String    @id @default(uuid())
-  login     String    @unique
-  email     String    @unique
-  fullName  String    @default("")
-  password  String
+  id          String         @id @default(uuid())
+  login       String         @unique
+  email       String         @unique
+  fullName    String         @default("")
+  password    String
+  isArchived  Boolean?       @default(false)
+  permissions UserPermission @default(USER)
   // token     String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt()
-  todos     Todo[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt()
+  todos       Todo[]
 }
 
 enum TodoStatus {
@@ -32,11 +39,11 @@ enum TodoStatus {
 }
 
 model Todo {
-  id         String      @id @default(uuid())
-  name       String
-  TodoStatus TodoStatus  @default(PENDING)
-  user       User       @relation(fields: [userId], references: [id])
-  userId     String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt()
+  id        String     @id @default(uuid())
+  name      String
+  satus     TodoStatus @default(PENDING)
+  user      User       @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt()
 }

@@ -9,7 +9,8 @@ async function bootstrap() {
     app.setGlobalPrefix("api");
 
     // параметр whitelist: true видаляє всі властивості, яких немає в DTO.
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+    // forbidNonWhitelisted: true викидає помилку на зайві поля
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
 
     app.use(cookieParser());
 
