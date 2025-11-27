@@ -9,7 +9,7 @@ import { JwtUser } from "./types/jwt-user.type";
 
 @Injectable()
 export class UsersService {
-    constructor(private databaseService: DatabaseService) {}
+    constructor(private readonly databaseService: DatabaseService) {}
 
     async getUser(id: string, request: Request) {
         const user = await this.databaseService.user.findUnique({ where: { id } });

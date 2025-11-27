@@ -11,7 +11,7 @@ import { comparePasswords } from "src/utils/password";
 @Injectable()
 export class AuthService {
     constructor(
-        private databaseService: DatabaseService,
+        private readonly databaseService: DatabaseService,
         private userService: UsersService,
         private jwt: JwtService
     ) {}

@@ -7,7 +7,7 @@ import { CreateTodosDto, UpdateTodosDto } from "./dto/todos.dto";
 
 @Injectable()
 export class TodosService {
-    constructor(private databaseService: DatabaseService) {}
+    constructor(private readonly databaseService: DatabaseService) {}
 
     private assertOwner(todoUserId: string, currentUserId: string) {
         if (todoUserId !== currentUserId) {
@@ -45,13 +45,7 @@ export class TodosService {
 
         const updateData: UpdateTodosDto = {};
         if (name) updateData.name = name;
-        if (status !== undefined) {
-            if (!Object.values(TodoStatus).includes(status)) {
-                throw new BadRequestException("Invalid status value");
-            } else {
-                updateData.status = status;
-            }
-        }
+        if (status !== undefined) updateData.status = status;
 
         const updatedTodo = await this.databaseService.todo.update({
             where: { id },
