@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { TodoStatus } from "@prisma/client";
 import { IsEnum, IsOptional, IsString } from "class-validator";
 
@@ -7,19 +7,19 @@ export class CreateTodosDto {
     @IsString()
     name: string;
 
-    @ApiProperty({ description: "Todo satus.", example: "one of PENDING, IN_PROGRESS, COMPLETED" })
+    @ApiPropertyOptional({ description: "Todo satus.", example: "one of PENDING, IN_PROGRESS, COMPLETED", required: false })
     @IsOptional()
     @IsEnum(TodoStatus)
     status?: TodoStatus;
 }
 
 export class UpdateTodosDto {
-    @ApiProperty({ description: "Todo name.", example: "Start learning NestJS tomorrow" })
+    @ApiPropertyOptional({ description: "Todo name.", example: "Start learning NestJS tomorrow", required: false })
     @IsOptional()
     @IsString()
     name?: string;
 
-    @ApiProperty({ description: "Todo satus.", example: "one of PENDING, IN_PROGRESS, COMPLETED" })
+    @ApiPropertyOptional({ description: "Todo satus.", example: "one of PENDING, IN_PROGRESS, COMPLETED", required: false })
     @IsOptional()
     @IsEnum(TodoStatus)
     status?: TodoStatus;

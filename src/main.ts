@@ -10,7 +10,13 @@ async function bootstrap() {
     // http://localhost:3000/api
     app.setGlobalPrefix("api");
 
-    const config = new DocumentBuilder().setTitle("Todos").setDescription("Todos API").setVersion("1.0").addTag("todos").build();
+    const config = new DocumentBuilder()
+        .setTitle("Todos")
+        .setDescription("Todos API")
+        .setVersion("1.0")
+        .addTag("todos")
+        .addCookieAuth()
+        .build();
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup("api", app, documentFactory);
 

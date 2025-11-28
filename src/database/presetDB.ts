@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
+
 import { DatabaseService } from "./database.service";
 import { hashPassword } from "src/utils/password";
-import { PresetDBDto } from "./dto/presetDB.dto";
 import { validatePresetEnv } from "src/utils/validatePresetEnv";
 
 @Injectable()
