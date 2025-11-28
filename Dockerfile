@@ -3,7 +3,7 @@ FROM node:22
 WORKDIR /nodejs-todo
 
 COPY package*.json ./
-RUN npm install
+RUN npm install --ignore-scripts
 
 COPY prisma ./prisma
 RUN npx prisma generate
