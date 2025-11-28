@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nestjs-todo
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/nestjs-todo
+    depends_on:
+      - db
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && node dist/src/main.js"
+
+volumes:
+  db_data:

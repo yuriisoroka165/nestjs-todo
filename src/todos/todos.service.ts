@@ -1,7 +1,6 @@
 import { Request } from "express";
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 
-import { TodoStatus } from "@prisma/client";
 import { DatabaseService } from "src/database/database.service";
 import { CreateTodosDto, UpdateTodosDto } from "./dto/todos.dto";
 
