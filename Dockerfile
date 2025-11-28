@@ -13,6 +13,10 @@ COPY src ./src
 
 RUN npm run build
 
+RUN chown -R node:node /nodejs-todo
+
+USER node
+
 EXPOSE 3000
 
 CMD ["node", "dist/main.js"]
