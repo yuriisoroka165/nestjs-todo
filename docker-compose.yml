@@ -18,9 +18,15 @@ services:
       - '3000:3000'
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/nestjs-todo
+      JWT_SECRET: secret
+      ADMIN_LOGIN: sysadmin
+      ADMIN_EMAIL: sysadmin@example.com
+      ADMIN_FULL_NAME: System Administrator
+      ADMIN_PASSWORD: admin123
+
     depends_on:
       - db
-    command: sh -c "npx prisma generate && npx prisma migrate deploy && node dist/src/main.js"
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && node dist/main.js"
 
 volumes:
   db_data:
